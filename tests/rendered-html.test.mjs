@@ -29,8 +29,7 @@ test("renders the installable certificate application", async () => {
   const html = await response.text();
   assert.match(html, /Gerador de Certificados/);
   assert.match(html, /manifest\.webmanifest/);
-  assert.match(html, /Windows/);
-  assert.match(html, /Android/);
+  assert.doesNotMatch(html, /Instalar aplicativo/);
   assert.match(html, /CPF/);
   assert.match(html, /Nº REGISTRO/);
   assert.match(html, /CAT/);

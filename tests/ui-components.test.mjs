@@ -39,7 +39,7 @@ test("emits the application, certificate, responsive, and print styles", async (
   const css = await readCssTree(path.join(root, "dist"));
 
   assert.match(css, /\.app-shell/);
-  assert.match(css, /\.install-button/);
+  assert.doesNotMatch(css, /\.install-button/);
   assert.match(css, /\.certificate-sheet/);
   assert.match(css, /\.certificate-statement/);
   assert.match(css, /@media\s*\((?:max-width:\s*600px|width<=600px)\)/);

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, ChevronLeft, ChevronRight, Clock3, Download, FileDown, FileUp, Laptop2, PenLine, Printer, RotateCcw, ShieldCheck, Smartphone, Users } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Clock3, FileDown, FileUp, PenLine, Printer, RotateCcw, ShieldCheck, Users } from "lucide-react";
 import Image from "next/image";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
@@ -21,27 +21,11 @@ type Participant = {
   category: string;
 };
 
-type InstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
-
 const INITIAL_DATA: CertificateData = {
-  names: "", course: "Operador de Microcomputador com Inteligência Artificial", workload: "80", validity: "5",
+  names: "", course: "Curso Especializado para Condutores de Veículos de Transporte de Emergência", workload: "80", validity: "5",
   startDate: "2026-08-03", endDate: "2026-08-26", city: "Brasília-DF", issueDate: "2026-08-26",
   commander: "Cel. Ex. Nome do Comandante", commanderRole: "Comandante da Base Administrativa do QGEx", signatureImage: "",
 };
-
-const SAMPLE_PARTICIPANTS = [
-  "Ana Beatriz Almeida;000.000.000-00;REG-0001;A", "Bruno César Andrade;000.000.000-00;REG-0002;A",
-  "Camila Ferreira Barbosa;000.000.000-00;REG-0003;B", "Daniel Gomes Cardoso;000.000.000-00;REG-0004;B",
-  "Eduarda Helena Costa;000.000.000-00;REG-0005;A", "Felipe Martins da Cunha;000.000.000-00;REG-0006;C",
-  "Gabriela Rocha Dias;000.000.000-00;REG-0007;A", "Henrique Oliveira Freitas;000.000.000-00;REG-0008;B",
-  "Isabela Santos Lima;000.000.000-00;REG-0009;C", "João Pedro Mendes;000.000.000-00;REG-0010;A",
-  "Larissa Nunes Moreira;000.000.000-00;REG-0011;B", "Marcos Vinícius Pereira;000.000.000-00;REG-0012;A",
-  "Natália Ribeiro Queiroz;000.000.000-00;REG-0013;C", "Paulo Henrique Souza;000.000.000-00;REG-0014;B",
-  "Vitória Alves Teixeira;000.000.000-00;REG-0015;A",
-];
 
 const cleanCell = (value = "") => value.replace(/^\s*["']|["']\s*$/g, "").trim();
 
@@ -273,12 +257,6 @@ export default function Home() {
   const [message, setMessage] = useState("Preencha os nomes ou importe uma lista.");
   const [elapsed, setElapsed] = useState<number | null>(null);
   const [throughput, setThroughput] = useState<number | null>(null);
-  const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const navigatorWithStandalone = navigator as Navigator & { standalone?: boolean };
-    return window.matchMedia("(display-mode: standalone)").matches || Boolean(navigatorWithStandalone.standalone);
-  });
   const fileRef = useRef<HTMLInputElement>(null);
   const generationStartRef = useRef<number | null>(null);
   const typedParticipants = useMemo(() => parseParticipants(data.names), [data.names]);
@@ -286,17 +264,9 @@ export default function Home() {
   const previewParticipant = previewParticipants[previewIndex] || { name: "Nome do(a) concluinte", cpf: "", registration: "", category: "" };
 
   useEffect(() => {
-    const onInstallPrompt = (event: Event) => {
-      event.preventDefault();
-      setInstallPrompt(event as InstallPromptEvent);
-    };
-
-    window.addEventListener("beforeinstallprompt", onInstallPrompt);
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => undefined);
     }
-
-    return () => window.removeEventListener("beforeinstallprompt", onInstallPrompt);
   }, []);
 
   useEffect(() => {
@@ -341,11 +311,6 @@ export default function Home() {
     if (ready) window.setTimeout(() => window.print(), 120);
   };
 
-  const loadExample = () => {
-    setData((current) => ({ ...current, names: SAMPLE_PARTICIPANTS.join("\n") }));
-    setGeneratedParticipants([]); setPreviewIndex(0); setElapsed(null); setThroughput(null); setMessage("Teste com 15 participantes carregado.");
-  };
-
   const importFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]; if (!file) return;
     try {
@@ -379,45 +344,14 @@ export default function Home() {
     }
   };
 
-  const reset = () => { setData(INITIAL_DATA); setGeneratedParticipants([]); setPreviewIndex(0); setElapsed(null); setThroughput(null); setMessage("Campos restaurados."); };
-
-  const installApp = async () => {
-    if (isInstalled) {
-      setMessage("O Gerador de Certificados já está instalado neste dispositivo.");
-      return;
-    }
-
-    if (!installPrompt) {
-      setMessage("Abra o menu do navegador e escolha “Instalar aplicativo” ou “Adicionar à tela inicial”.");
-      return;
-    }
-
-    await installPrompt.prompt();
-    const choice = await installPrompt.userChoice;
-    if (choice.outcome === "accepted") {
-      setIsInstalled(true);
-      setMessage("Aplicativo instalado com sucesso neste dispositivo.");
-    } else {
-      setMessage("Instalação cancelada. Você pode tentar novamente quando quiser.");
-    }
-    setInstallPrompt(null);
-  };
-
   return (
     <main className="app-shell">
       <header className="topbar">
         <div className="brand"><div className="brand-mark"><ShieldCheck /></div><div><span>SGEx • BADMQGEX</span><h1>Gerador de Certificados</h1></div></div>
-        <div className="topbar-actions">
-          <div className="topbar-badge"><Laptop2 /><Smartphone /> Windows • Android • Web</div>
-          <Button type="button" className="install-button" onClick={installApp} aria-label="Instalar Gerador de Certificados">
-            {isInstalled ? <CheckCircle2 /> : <Download />}
-            {isInstalled ? "Instalado" : "Instalar aplicativo"}
-          </Button>
-        </div>
       </header>
       <div className="workspace">
         <section className="editor-panel" aria-labelledby="form-title">
-          <div className="panel-heading"><div><span className="eyebrow">Dados do documento</span><h2 id="form-title">Configure uma vez, gere em massa</h2></div><Button variant="ghost" size="icon" onClick={reset} aria-label="Restaurar campos"><RotateCcw /></Button></div>
+          <div className="panel-heading"><div><span className="eyebrow">Dados do documento</span><h2 id="form-title">Configure uma vez, gere em massa</h2></div></div>
           <div className="form-section participants-section">
             <div className="section-title"><Users /><div><strong>Participantes</strong><span>Nome; CPF; Nº REGISTRO; CAT • sem limite fixo</span></div><span className="counter">{typedParticipants.length} participante{typedParticipants.length !== 1 ? "s" : ""}</span></div>
             <Label htmlFor="names" className="sr-only">Dados dos participantes</Label>
@@ -426,7 +360,6 @@ export default function Home() {
             <div className="inline-actions">
               <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv,.txt,.tsv,.json" onChange={importFile} hidden />
               <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}><FileUp /> Importar arquivo</Button>
-              <Button type="button" variant="ghost" size="sm" onClick={loadExample}>Testar com 15 participantes</Button>
             </div>
           </div>
           <div className="form-section">

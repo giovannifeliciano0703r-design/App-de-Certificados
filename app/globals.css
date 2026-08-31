@@ -23,13 +23,6 @@ button, input, textarea { font: inherit; }
 .brand span, .eyebrow { display: block; font-size: 10px; line-height: 1.2; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .brand span { color: var(--gold-light); margin-bottom: 3px; }
 .brand h1 { font-size: 19px; line-height: 1; margin: 0; font-weight: 680; letter-spacing: -.02em; }
-.topbar-badge { display: inline-flex; align-items: center; gap: 8px; color: #dbe2ef; font-size: 12px; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 8px 12px; }
-.topbar-badge svg { width: 15px; color: var(--gold-light); }
-.topbar-actions { display: flex; align-items: center; gap: 10px; }
-.topbar-badge svg + svg { margin-left: -4px; }
-.install-button { min-width: 156px; background: var(--gold); color: var(--navy); font-weight: 800; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
-.install-button:hover { background: var(--gold-light); color: var(--navy); }
-.install-button svg { width: 16px; }
 
 .workspace { height: calc(100vh - 76px); display: grid; grid-template-columns: minmax(430px, 40%) 1fr; overflow: hidden; }
 .editor-panel { padding: 28px 32px 24px; background: white; overflow-y: auto; border-right: 1px solid var(--line); }
@@ -134,11 +127,6 @@ button, input, textarea { font: inherit; }
 }
 @media (max-width: 600px) {
   .topbar { height: auto; min-height: 70px; padding: 14px 18px; }
-  .topbar-badge { display: none; }
-  .topbar-actions { margin-left: auto; }
-  .install-button { min-width: 0; padding-inline: 12px; }
-  .install-button svg { margin-right: 0; }
-  .install-button { font-size: 0; }
   .editor-panel, .preview-panel { padding: 22px 18px; }
   .three-columns, .four-columns, .two-columns { grid-template-columns: 1fr; }
   .inline-actions { align-items: stretch; flex-direction: column; }

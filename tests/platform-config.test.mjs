@@ -23,7 +23,7 @@ test("registers offline support and native packaging", async () => {
   ]);
 
   assert.match(page, /serviceWorker\.register\("\/sw\.js"\)/);
-  assert.match(page, /beforeinstallprompt/);
+  assert.doesNotMatch(page, /Instalar aplicativo/);
   assert.match(serviceWorker, /certificados-segex-v2/);
   assert.match(capacitor, /br\.mil\.eb\.certificados/);
   assert.match(capacitor, /app-certificados-segex\.giovannifeliciano070\.chatgpt\.site/);
@@ -41,7 +41,8 @@ test("supports unlimited lists and measures the minimum throughput requirement",
   assert.match(page, /performance\.now\(\)/);
   assert.match(page, /rate >= 15/);
   assert.match(page, /cert\.\/s/);
-  assert.match(page, /SAMPLE_PARTICIPANTS/);
+  assert.doesNotMatch(page, /Testar com 15 participantes/);
+  assert.doesNotMatch(page, /Restaurar campos/);
   assert.match(page, /Nº REGISTRO/);
   assert.match(page, /categoria CAT/);
   assert.match(page, /data\.validity/);
